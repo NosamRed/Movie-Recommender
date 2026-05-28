@@ -9,16 +9,25 @@
 </head>
 
 <body>
-    <h1>Movie Recommender</h1>
-    <div id="movie-list">
+    <div id="movie-list" style="display: block;" class="shown">
         <h2>Movies</h2>
         <ul id="movies"></ul>
     </div>
 
-    <div id="recommendations">
+    <div id="recommendations" style="display: block;" class="shown">
         <h2>Recommended Movies</h2>
         <ul id="recommended-movies"></ul>
     </div>
+
+    <button id="ButtonL">Login</button>
+
+    <div id="login-form" style="display: none;" class="hidden">
+        <h2>Login</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="password" id="password" placeholder="Password">
+        <button id="submit-login">Submit</button>
+    </div>
+
 </body>
 
 </html>
