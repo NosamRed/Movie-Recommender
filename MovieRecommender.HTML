@@ -1,33 +1,34 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-    <meta charset="utf-8">
-    <title>Movie Recommender</title>
-    <link rel="stylesheet" href="mrStyle.css">
-    <script src="mrScript.js"></script>
+  <meta charset="utf-8">
+  <title>Movie Recommender</title>
+  <link rel="stylesheet" href="mrStyle.css">
 </head>
-
 <body>
-    <div id="movie-list" style="display: block;" class="shown">
-        <h2>Movies</h2>
-        <ul id="movies"></ul>
+  <div class="container">
+    <div id="movie-list">
+      <h2>Movies</h2>
+      <ul id="movies"></ul>
     </div>
 
-    <div id="recommendations" style="display: block;" class="shown">
-        <h2>Recommended Movies</h2>
-        <ul id="recommended-movies"></ul>
+    <div id="recommendations">
+      <h2>Recommended Movies</h2>
+      <ul id="recommended-movies"></ul>
     </div>
 
-    <button id="ButtonL">Login</button>
+    <button id="login-toggle" type="button">Login</button>
 
-    <div id="login-form" style="display: none;" class="hidden">
-        <h2>Login</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button id="submit-login">Submit</button>
+    <div id="login-form" class="hidden" aria-hidden="true">
+      <h2>Login</h2>
+      <label for="username" class="visually-hidden">Username</label>
+      <input type="text" id="username" placeholder="Username">
+      <label for="password" class="visually-hidden">Password</label>
+      <input type="password" id="password" placeholder="Password">
+      <button id="submit-login" type="button">Submit</button>
     </div>
+  </div>
 
+  <script src="mrScript.js" defer></script>
 </body>
-
 </html>
