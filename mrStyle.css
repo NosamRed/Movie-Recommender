@@ -9,7 +9,7 @@ body {
   margin: 0;
 }
 
-/* Use the container you already defined */
+
 .container {
   background: white;
   padding: 20px 30px;
@@ -18,7 +18,7 @@ body {
   width: 400px;
 }
 
-/* Narrow selectors so not every button/textarea is affected globally */
+
 .container textarea,
 .container button {
   margin-top: 10px;
@@ -26,7 +26,7 @@ body {
   font-size: 16px;
 }
 
-/* Buttons inside container */
+
 .container button {
   background: #007bff;
   color: white;
@@ -35,36 +35,36 @@ body {
   cursor: pointer;
 }
 
-/* Specific button id rule */
+
 button#saveNote {
   width: 50%;
   display: block;
   margin: 0 auto;
 }
 
-/* Hover */
+
 .container button:hover {
   background: #0056b3;
 }
 
-/* Hidden state */
+
 .hidden {
   display: none;
 }
 
-/* Optional shown state (not required if you only toggle .hidden) */
+
 .shown {
   display: block;
 }
 
-/* Content textarea */
+
 #content {
   width: 95%;
   height: 200px;
   resize: none;
 }
 
-/* Accessibility helper (visually hidden labels) */
+
 .visually-hidden {
   position: absolute;
   left: -9999px;
