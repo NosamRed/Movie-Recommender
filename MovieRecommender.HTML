@@ -1,34 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Movie Recommender</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <link rel="stylesheet" href="mrStyle.css">
 </head>
 <body>
-  <div class="container">
-    <div id="movie-list">
-      <h2>Movies</h2>
-      <ul id="movies"></ul>
+  <!-- Top header with top-right login -->
+  <header class="site-header" role="banner">
+    <div class="header-inner">
+      <h1 class="brand">Movie Recommender</h1>
+
+      <!-- Top-right login container -->
+      <div class="login-topright">
+        <button id="login-toggle" class="btn login-btn" type="button" aria-expanded="false" aria-controls="login-form">Login</button>
+      </div>
     </div>
+  </header>
 
-    <div id="recommendations">
-      <h2>Recommended Movies</h2>
-      <ul id="recommended-movies"></ul>
-    </div>
+  <main class="container" id="mainContent">
+    <!-- Movie section -->
+    <section id="movie-list" class="section movie-section" aria-labelledby="movies-heading">
+      <h2 id="movies-heading">Movies</h2>
+      <ul id="movies" class="list"></ul>
+    </section>
 
-    <button id="login-toggle" type="button">Login</button>
+    <!-- Container under Movie and above Recommended Movies -->
+    <section id="promoAbove" class="section promo-section" aria-label="Explore more">
+      <div class="promo-card">
+        <div>
+          <h3>More to explore</h3>
+          <p>Discover curated lists and trending titles.</p>
+        </div>
+        <div>
+          <button class="btn explore-btn" type="button">Explore</button>
+        </div>
+      </div>
+    </section>
 
-    <div id="login-form" class="hidden" aria-hidden="true">
-      <h2>Login</h2>
+    <!-- Recommended Movies section -->
+    <section id="recommendations" class="section recommended-section" aria-labelledby="recommended-heading">
+      <h2 id="recommended-heading">Recommended Movies</h2>
+      <ul id="recommended-movies" class="recommended-list"></ul>
+    </section>
+
+    <!-- Container below Recommended Movies -->
+    <section id="promoBelow" class="section promo-section" aria-label="Sign in prompt below recommendations">
+      <div class="promo-card">
+        <div>
+          <h3>Sign in for personalized picks</h3>
+          <p>Log in to save favorites and get tailored recommendations.</p>
+        </div>
+        <div>
+          <button class="btn promo-login" type="button">Login</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Inline login form (kept in DOM, toggled) -->
+    <div id="login-form" class="hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="login-heading">
+      <h2 id="login-heading">Login</h2>
       <label for="username" class="visually-hidden">Username</label>
-      <input type="text" id="username" placeholder="Username">
+      <input type="text" id="username" placeholder="Username" autocomplete="username">
       <label for="password" class="visually-hidden">Password</label>
-      <input type="password" id="password" placeholder="Password">
-      <button id="submit-login" type="button">Submit</button>
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+      <div class="form-actions">
+        <button id="submit-login" class="btn primary" type="button">Submit</button>
+        <button id="cancel-login" class="btn secondary" type="button">Cancel</button>
+      </div>
     </div>
-  </div>
+  </main>
 
   <script src="mrScript.js" defer></script>
+
+  <!-- Small inline script to sync login toggles if you don't want to modify mrScript.js -->
+  <script>
+    (function () {
+      const loginToggle = document.getElementById('login-toggle');
+      const loginForm = document.getElementById('login-form');
+      const promoButtons = document.querySelectorAll('.promo-login');
+      const cancelBtn = document.getElementById('cancel-login');
+
+      function setFormVisible(visible) {
+        loginForm.classList.toggle('hidden', !visible);
+        loginForm.classList.toggle('shown', visible);
+        loginForm.setAttribute('aria-hidden', String(!visible));
+        loginToggle.setAttribute('aria-expanded', String(visible));
+        if (visible) {
+          // move focus into the form for accessibility
+          const firstInput = loginForm.querySelector('input');
+          if (firstInput) firstInput.focus();
+        } else {
+          loginToggle.focus();
+        }
+      }
+
+      loginToggle.addEventListener('click', () => setFormVisible(loginForm.classList.contains('hidden')));
+      promoButtons.forEach(btn => btn.addEventListener('click', () => setFormVisible(true)));
+      if (cancelBtn) cancelBtn.addEventListener('click', () => setFormVisible(false));
+    })();
+  </script>
 </body>
 </html>
