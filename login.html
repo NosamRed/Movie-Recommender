@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login - Movie Recommender</title>
+  <link rel="stylesheet" href="mrStyle.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <a class="brand" href="MovieRecommender.HTML">Movie Recommender</a>
+      </div>
+
+      <div class="nav-right" id="navRightLogin">
+        <!-- Keep same classes; id added for script compatibility -->
+        <a class="nav-btn" id="loginBtn" href="login.html">Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="login-card">
+      <h1>Sign in</h1>
+      <form id="loginForm" class="form">
+        <label for="usernameField">Username</label>
+        <input id="usernameField" name="username" type="text" required />
+
+        <label for="passwordField">Password</label>
+        <input id="passwordField" name="password" type="password" required />
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary">Sign in</button>
+          <a class="btn link" href="MovieRecommender.HTML">Cancel</a>
+        </div>
+
+        <div id="loginError" class="form-error" style="display:none;color:#c00;margin-top:8px;"></div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Movie Recommender</p>
+  </footer>
+
+  <script src="mrScript.js"></script>
+  <script>
+    // If already logged in, go back to main page
+    try {
+      const u = localStorage.getItem('mr_username');
+      if (u) window.location.href = 'MovieRecommender.HTML';
+    } catch (e) {}
+  </script>
+</body>
+</html>

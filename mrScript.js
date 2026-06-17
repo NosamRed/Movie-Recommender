@@ -1,126 +1,175 @@
-// document.addEventListener('DOMContentLoaded', function () {
-//   const loginToggle = document.getElementById('login-toggle');
-//   const loginForm = document.getElementById('login-form');
-//   const submitLogin = document.getElementById('submit-login');
+/* mrScript.js
+   Non-invasive: preserves all original containers and classes.
+   Requirements:
+   - Add id="loginBtn" to your existing login element (anchor or button).
+   - Optionally add id="userMenu" and id="logoutBtn" for logout UI.
+   - No CSS changes required.
+*/
 
-//   // Toggle login panel
-//   loginToggle.addEventListener('click', function () {
-//     const isHidden = loginForm.classList.toggle('hidden');
-//     loginForm.setAttribute('aria-hidden', isHidden ? 'true' : 'false');
-//   });
+const STORAGE_KEY = 'mr_username';
 
-//   // Submit handler
-//   submitLogin.addEventListener('click', async function (e) {
-//     e.preventDefault();
+/* Set username on the existing login element without touching classes */
+function setLoggedInUser(username) {
+  const loginEl = document.getElementById('loginBtn');
+  const userMenu = document.getElementById('userMenu');
 
-//     const username = document.getElementById('username').value.trim();
-//     const password = document.getElementById('password').value;
+  if (!loginEl) return;
 
-//     if (!username || !password) {
-//       alert('Please enter username and password');
-//       return;
-//     }
+  // Update visible label only
+  loginEl.textContent = username;
 
-//     try {
-//       const res = await fetch('/api/login', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify({ username, password }),
-//         credentials: 'same-origin'
-//       });
-
-//       const data = await res.json().catch(() => ({}));
-
-//       if (!res.ok) {
-//         // server returns { error: '...' } on failure
-//         alert(data.error || 'Login failed');
-//         return;
-//       }
-
-
-//       alert('Logged in as ' + (data.user?.username || username));
-
-//       if (data.token) {
-//         try {
-//           localStorage.setItem('authToken', data.token);
-//         } catch (err) {
-//         }
-//       }
-
-//       loginForm.classList.add('hidden');
-//       loginForm.setAttribute('aria-hidden', 'true');
-//     } catch (err) {
-//       console.error('Login request failed', err);
-//       alert('Network error. Please try again.');
-//     }
-//   });
-// });
-
-
-import dotenv from "dotenv";
-dotenv.config();
-
-import express from "express";
-import path from "path";
-import jwt from "jsonwebtoken";
-import { fileURLToPath } from "url";
-
-import { connectDB, verifyUserPassword } from "models.js"; // adjust path if needed
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const app = express();
-const PORT = process.env.PORT || 5500;
-const JWT_SECRET = process.env.JWT_SECRET || "change_this_secret_in_production";
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Serve static frontend files from /public
-app.use(express.static(path.join(__dirname, "..", "public")));
-
-// Login endpoint used by your client-side code
-app.post("/api/login", async (req, res) => {
-  try {
-    const { username, password } = req.body ?? {};
-    if (!username || !password) {
-      return res.status(400).json({ error: "Missing username or password" });
+  // If it's an anchor, prevent navigation while logged in
+  if (loginEl.tagName.toLowerCase() === 'a') {
+    // store original href so we can restore on logout
+    if (!loginEl.dataset.originalHref) {
+      loginEl.dataset.originalHref = loginEl.getAttribute('href') || '';
     }
-
-    const user = await verifyUserPassword(username, password);
-    if (!user) {
-      return res.status(401).json({ error: "Invalid username or password" });
-    }
-
-    // Create a short-lived token (adjust payload and expiry as needed)
-    const token = jwt.sign({ username: user.username }, JWT_SECRET, {
-      expiresIn: "1h",
-    });
-
-    return res.json({ user: { username: user.username, notes: user.notes ?? [] }, token });
-  } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).json({ error: "Internal server error" });
+    loginEl.setAttribute('href', '#');
   }
-});
 
-// Fallback to index.html for SPA routes (optional)
-app.get("*", (req, res) => {
-  res.sendFile(path.join(__dirname, "..", "public", "MovieRecommender.html"));
-});
-
-// Start server only after DB connection
-async function start() {
   try {
-    await connectDB();
-    app.listen(PORT, () => {
-      console.log(`Server listening on http://localhost:${PORT}`);
-    });
-  } catch (err) {
-    console.error("Failed to start server:", err);
-    process.exit(1);
+    localStorage.setItem(STORAGE_KEY, username);
+  } catch (e) {
+    console.warn('localStorage unavailable', e);
+  }
+
+  if (userMenu) userMenu.style.display = 'block';
+}
+
+/* Restore the login label and remove persisted username */
+function clearLoggedInUser() {
+  const loginEl = document.getElementById('loginBtn');
+  const userMenu = document.getElementById('userMenu');
+
+  if (loginEl) {
+    loginEl.textContent = 'Login';
+    if (loginEl.tagName.toLowerCase() === 'a') {
+      const orig = loginEl.dataset.originalHref || 'login.html';
+      loginEl.setAttribute('href', orig);
+      // remove stored original only if you want
+      // delete loginEl.dataset.originalHref;
+    }
+  }
+
+  if (userMenu) userMenu.style.display = 'none';
+
+  try {
+    localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {
+    console.warn('localStorage unavailable', e);
   }
 }
 
-start();
+/* Restore username from storage on page load */
+function restoreUserFromStorage() {
+  try {
+    const username = localStorage.getItem(STORAGE_KEY);
+    if (username) setLoggedInUser(username);
+  } catch (e) {
+    // ignore
+  }
+}
+
+/* Example login request (DEMO). Replace with your backend call if you have one. */
+async function performLoginRequest(username, password) {
+  if (!username || !password) {
+    return { success: false, message: 'Username and password required' };
+  }
+
+  // Demo mode: accept any credentials for local testing
+  const DEMO = true;
+  if (DEMO) {
+    await new Promise((r) => setTimeout(r, 250));
+    return { success: true, username: username };
+  }
+
+  // Production example (uncomment and adapt)
+  /*
+  try {
+    const resp = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    if (!resp.ok) {
+      const text = await resp.text();
+      return { success: false, message: text || 'Login failed' };
+    }
+    const data = await resp.json();
+    return data && data.success ? { success: true, username: data.username || username } : { success: false, message: data.message || 'Invalid credentials' };
+  } catch (err) {
+    return { success: false, message: 'Network error' };
+  }
+  */
+}
+
+/* DOM wiring */
+document.addEventListener('DOMContentLoaded', function () {
+  restoreUserFromStorage();
+
+  const loginEl = document.getElementById('loginBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const loginForm = document.getElementById('loginForm'); // if you have a login page/form
+
+  if (loginEl) {
+    loginEl.addEventListener('click', function (e) {
+      let stored = null;
+      try { stored = localStorage.getItem(STORAGE_KEY); } catch (err) { stored = null; }
+
+      if (stored) {
+        // If there's a user menu, toggle it; otherwise prevent navigation so user stays on page
+        const userMenu = document.getElementById('userMenu');
+        if (userMenu) {
+          userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
+          e.preventDefault();
+        } else {
+          if (loginEl.tagName.toLowerCase() === 'a') e.preventDefault();
+        }
+      } else {
+        // Not logged in: allow default behavior (navigate to login page) or open modal if implemented
+      }
+    });
+  }
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function () {
+      // If you have server-side logout, call it here then clear.
+      clearLoggedInUser();
+      // Optionally reload or redirect:
+      // window.location.href = 'MovieRecommender.HTML';
+    });
+  }
+
+  if (loginForm) {
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      const usernameInput = document.getElementById('usernameField');
+      const passwordInput = document.getElementById('passwordField');
+      const username = usernameInput ? usernameInput.value.trim() : '';
+      const password = passwordInput ? passwordInput.value : '';
+
+      const result = await performLoginRequest(username, password);
+      if (result.success) {
+        setLoggedInUser(result.username || username);
+        window.location.href = 'MovieRecommender.HTML';
+      } else {
+        const errEl = document.getElementById('loginError');
+        if (errEl) { errEl.textContent = result.message || 'Login failed'; errEl.style.display = 'block'; }
+      }
+    });
+  }
+
+  // Hide user menu when clicking outside (if you added one)
+  document.addEventListener('click', function (evt) {
+    const userMenuEl = document.getElementById('userMenu');
+    if (!userMenuEl || userMenuEl.style.display !== 'block') return;
+    const loginBtnEl = document.getElementById('loginBtn');
+    if (loginBtnEl && (loginBtnEl === evt.target || loginBtnEl.contains(evt.target))) return;
+    if (userMenuEl.contains(evt.target)) return;
+    userMenuEl.style.display = 'none';
+  });
+});
+
+/* Debug helpers */
+window.debugLoginAs = function (username) { setLoggedInUser(username); };
+window.debugLogout = function () { clearLoggedInUser(); };

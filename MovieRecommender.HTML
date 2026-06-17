@@ -1,105 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Movie Recommender</title>
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="stylesheet" href="mrStyle.css">
+  <title>Movie Recommender</title>
+  <link rel="stylesheet" href="mrStyle.css" />
 </head>
 <body>
-  <!-- Top header with top-right login -->
-  <header class="site-header" role="banner">
-    <div class="header-inner">
-      <h1 class="brand">Movie Recommender</h1>
-
-      <!-- Top-right login container -->
-      <div class="login-topright">
-        <button id="login-toggle" class="btn login-btn" type="button" aria-expanded="false" aria-controls="login-form">Login</button>
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <a class="brand" href="MovieRecommender.HTML">Movie Recommender</a>
       </div>
-    </div>
+
+      <div class="nav-right" id="navRight">
+        <a class="nav-btn" id="loginBtn" href="login.html">Login</a>
+
+        <div class="user-menu-container" id="userMenu" style="display:none;">
+          <button class="nav-btn" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </nav>
   </header>
 
-  <main class="container" id="mainContent">
-    <!-- Movie section -->
-    <section id="movie-list" class="section movie-section" aria-labelledby="movies-heading">
-      <h2 id="movies-heading">Movies</h2>
-      <ul id="movies" class="list"></ul>
+  <main class="container">
+    <section class="hero">
+      <h1>Find movies you'll love</h1>
+      <p>Use recommendations, search, and ratings to discover new films.</p>
     </section>
 
-    <!-- Container under Movie and above Recommended Movies -->
-    <section id="promoAbove" class="section promo-section" aria-label="Explore more">
-      <div class="promo-card">
-        <div>
-          <h3>More to explore</h3>
-          <p>Discover curated lists and trending titles.</p>
+    <section class="movies-section">
+      <div class="movies-grid">
+
+        <div class="left-panel">
+          <h2>All Movies</h2>
+          <div id="movie-list" class="movie-list">
+            <!-- Movie cards will be injected here by JavaScript -->
+          </div>
         </div>
-        <div>
-          <button class="btn explore-btn" type="button">Explore</button>
-        </div>
+
+        <aside class="right-panel">
+          <h2>Recommended For You</h2>
+          <div id="recommendations" class="recommendations">
+            <!-- Recommendation cards will be injected here by JavaScript -->
+          </div>
+        </aside>
+
       </div>
     </section>
-
-    <!-- Recommended Movies section -->
-    <section id="recommendations" class="section recommended-section" aria-labelledby="recommended-heading">
-      <h2 id="recommended-heading">Recommended Movies</h2>
-      <ul id="recommended-movies" class="recommended-list"></ul>
-    </section>
-
-    <!-- Container below Recommended Movies -->
-    <section id="promoBelow" class="section promo-section" aria-label="Sign in prompt below recommendations">
-      <div class="promo-card">
-        <div>
-          <h3>Sign in for personalized picks</h3>
-          <p>Log in to save favorites and get tailored recommendations.</p>
-        </div>
-        <div>
-          <button class="btn promo-login" type="button">Login</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Inline login form (kept in DOM, toggled) -->
-    <div id="login-form" class="hidden" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="login-heading">
-      <h2 id="login-heading">Login</h2>
-      <label for="username" class="visually-hidden">Username</label>
-      <input type="text" id="username" placeholder="Username" autocomplete="username">
-      <label for="password" class="visually-hidden">Password</label>
-      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-      <div class="form-actions">
-        <button id="submit-login" class="btn primary" type="button">Submit</button>
-        <button id="cancel-login" class="btn secondary" type="button">Cancel</button>
-      </div>
-    </div>
   </main>
 
-  <script src="mrScript.js" defer></script>
+  <footer class="site-footer">
+    <p>© 2026 Movie Recommender</p>
+  </footer>
 
-  <!-- Small inline script to sync login toggles if you don't want to modify mrScript.js -->
+  <script src="mrScript.js"></script>
+
   <script>
-    (function () {
-      const loginToggle = document.getElementById('login-toggle');
-      const loginForm = document.getElementById('login-form');
-      const promoButtons = document.querySelectorAll('.promo-login');
-      const cancelBtn = document.getElementById('cancel-login');
+    /* Movie rendering scaffold (no sample data included)
+       Implement fetchMovies() to return an array of movie objects:
+       [{ id, title, year, rating, poster }, ...]
+    */
 
-      function setFormVisible(visible) {
-        loginForm.classList.toggle('hidden', !visible);
-        loginForm.classList.toggle('shown', visible);
-        loginForm.setAttribute('aria-hidden', String(!visible));
-        loginToggle.setAttribute('aria-expanded', String(visible));
-        if (visible) {
-          // move focus into the form for accessibility
-          const firstInput = loginForm.querySelector('input');
-          if (firstInput) firstInput.focus();
-        } else {
-          loginToggle.focus();
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderMovieCard(movie) {
+      const card = document.createElement('article');
+      card.className = 'movie-card';
+      card.dataset.movieId = movie.id;
+      card.innerHTML = `
+        <div class="movie-poster">
+          <img src="${movie.poster || 'images/placeholder.png'}" alt="${escapeHtml(movie.title)} poster" />
+        </div>
+        <div class="movie-meta">
+          <h3 class="movie-title">${escapeHtml(movie.title)}</h3>
+          <div class="movie-sub">${movie.year} • Rating ${movie.rating}</div>
+        </div>
+      `;
+      return card;
+    }
+
+    function populateMovieList(movies) {
+      const listEl = document.getElementById('movie-list');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      movies.forEach(m => listEl.appendChild(renderMovieCard(m)));
+    }
+
+    function populateRecommendations(movies) {
+      const recEl = document.getElementById('recommendations');
+      if (!recEl) return;
+      recEl.innerHTML = '';
+      const top = movies.slice().sort((a,b) => b.rating - a.rating).slice(0,3);
+      top.forEach(m => recEl.appendChild(renderMovieCard(m)));
+    }
+
+    async function fetchMovies() {
+      // TODO: replace with real API call
+      // Example:
+      // const resp = await fetch('/api/movies');
+      // return await resp.json();
+      return []; // empty by default
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      try {
+        const movies = await fetchMovies();
+        if (movies && movies.length) {
+          populateMovieList(movies);
+          populateRecommendations(movies);
         }
+      } catch (err) {
+        console.error('Failed to load movies', err);
       }
-
-      loginToggle.addEventListener('click', () => setFormVisible(loginForm.classList.contains('hidden')));
-      promoButtons.forEach(btn => btn.addEventListener('click', () => setFormVisible(true)));
-      if (cancelBtn) cancelBtn.addEventListener('click', () => setFormVisible(false));
-    })();
+    });
   </script>
 </body>
 </html>
