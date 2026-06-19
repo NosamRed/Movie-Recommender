@@ -1,3 +1,4 @@
+// mrScript.js
 const STORAGE_KEY = 'mr_username';
 
 /* Set username on the existing login element without touching classes */
@@ -38,8 +39,6 @@ function clearLoggedInUser() {
     if (loginEl.tagName.toLowerCase() === 'a') {
       const orig = loginEl.dataset.originalHref || 'login.html';
       loginEl.setAttribute('href', orig);
-      // remove stored original only if you want
-      // delete loginEl.dataset.originalHref;
     }
   }
 
@@ -62,17 +61,34 @@ function restoreUserFromStorage() {
   }
 }
 
-/* Example login request (DEMO). Replace with your backend call if you have one. */
+/* Real login request: call backend /api/login and return structured result */
 async function performLoginRequest(username, password) {
   if (!username || !password) {
     return { success: false, message: 'Username and password required' };
   }
 
-  // Demo mode: accept any credentials for local testing
-  const DEMO = true;
-  if (DEMO) {
-    await new Promise((r) => setTimeout(r, 250));
-    return { success: true, username: username };
+  try {
+    const resp = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+
+    // Try to parse JSON body if present
+    let body = {};
+    try { body = await resp.json(); } catch (e) { body = {}; }
+
+    if (!resp.ok) {
+      // Expect server to return 401 for not found / invalid credentials
+      const message = body.error || 'Login failed';
+      return { success: false, message };
+    }
+
+    // Success: server should return minimal user info (e.g., { username })
+    return { success: true, username: body.username || username };
+  } catch (err) {
+    console.error('Network/login error', err);
+    return { success: false, message: 'Network error. Try again.' };
   }
 }
 
@@ -108,8 +124,6 @@ document.addEventListener('DOMContentLoaded', function () {
     logoutBtn.addEventListener('click', function () {
       // If you have server-side logout, call it here then clear.
       clearLoggedInUser();
-      // Optionally reload or redirect:
-      // window.location.href = 'MovieRecommender.HTML';
     });
   }
 
