@@ -1,11 +1,3 @@
-/* mrScript.js
-   Non-invasive: preserves all original containers and classes.
-   Requirements:
-   - Add id="loginBtn" to your existing login element (anchor or button).
-   - Optionally add id="userMenu" and id="logoutBtn" for logout UI.
-   - No CSS changes required.
-*/
-
 const STORAGE_KEY = 'mr_username';
 
 /* Set username on the existing login element without touching classes */
@@ -82,25 +74,6 @@ async function performLoginRequest(username, password) {
     await new Promise((r) => setTimeout(r, 250));
     return { success: true, username: username };
   }
-
-  // Production example (uncomment and adapt)
-  /*
-  try {
-    const resp = await fetch('/api/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
-    });
-    if (!resp.ok) {
-      const text = await resp.text();
-      return { success: false, message: text || 'Login failed' };
-    }
-    const data = await resp.json();
-    return data && data.success ? { success: true, username: data.username || username } : { success: false, message: data.message || 'Invalid credentials' };
-  } catch (err) {
-    return { success: false, message: 'Network error' };
-  }
-  */
 }
 
 /* DOM wiring */
