@@ -1,6 +1,10 @@
 // mrScript.js
 const STORAGE_KEY = 'mr_username';
 
+const API_BASE = window.location.hostname === "localhost"
+  ? "http://localhost:3000"
+  : "https://movie-recommender-d2xa.onrender.com";
+
 /* Set username on the existing login element without touching classes */
 function setLoggedInUser(username) {
   const loginEl = document.getElementById('loginBtn');
@@ -61,14 +65,14 @@ function restoreUserFromStorage() {
   }
 }
 
-/* Real login request: call backend /api/login and return structured result */
+/* Real login request: call backend /api/login on API_BASE and return structured result */
 async function performLoginRequest(username, password) {
   if (!username || !password) {
     return { success: false, message: 'Username and password required' };
   }
 
   try {
-    const resp = await fetch('/api/login', {
+    const resp = await fetch(`${API_BASE}/api/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -80,7 +84,7 @@ async function performLoginRequest(username, password) {
 
     if (!resp.ok) {
       // Expect server to return 401 for not found / invalid credentials
-      const message = body.error || 'Login failed';
+      const message = body.error || body.message || 'Login failed';
       return { success: false, message };
     }
 
@@ -89,6 +93,26 @@ async function performLoginRequest(username, password) {
   } catch (err) {
     console.error('Network/login error', err);
     return { success: false, message: 'Network error. Try again.' };
+  }
+}
+
+/* Helper: request recommendations from the Render-hosted backend */
+async function getRecommendations(payload) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/recommend`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (!resp.ok) {
+      const errBody = await resp.json().catch(() => ({}));
+      throw new Error(errBody.error || errBody.message || 'Recommendation request failed');
+    }
+    return await resp.json();
+  } catch (err) {
+    console.error('getRecommendations error', err);
+    throw err;
   }
 }
 
@@ -123,6 +147,8 @@ document.addEventListener('DOMContentLoaded', function () {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', function () {
       // If you have server-side logout, call it here then clear.
+      // Example server-side logout call (uncomment if implemented on server):
+      // fetch(`${API_BASE}/api/logout`, { method: 'POST', credentials: 'include' }).finally(() => clearLoggedInUser());
       clearLoggedInUser();
     });
   }
@@ -160,3 +186,6 @@ document.addEventListener('DOMContentLoaded', function () {
 /* Debug helpers */
 window.debugLoginAs = function (username) { setLoggedInUser(username); };
 window.debugLogout = function () { clearLoggedInUser(); };
+
+// Expose recommendation helper for other scripts/pages to call
+window.getRecommendations = getRecommendations;
