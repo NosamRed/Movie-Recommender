@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Movie Recommender</title>
+  <link rel="stylesheet" href="mrStyle.css" />
+</head>
+<body>
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <a class="brand" href="MovieRecommender.HTML">Movie Recommender</a>
+      </div>
+
+      <div class="nav-right" id="navRight">
+        <a class="nav-btn" id="loginBtn" href="login.html">Login</a>
+
+        <div class="user-menu-container" id="userMenu" style="display:none;">
+          <button class="nav-btn" id="logoutBtn">Logout</button>
+        </div>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <h1>Find movies you'll love</h1>
+      <p>Use recommendations, search, and ratings to discover new films.</p>
+    </section>
+
+    <section class="movies-section">
+      <div class="movies-grid">
+
+        <div class="left-panel">
+          <h2>All Movies</h2>
+          <div id="movie-list" class="movie-list">
+            <!-- Movie cards will be injected here by JavaScript -->
+          </div>
+        </div>
+
+        <aside class="right-panel">
+          <h2>Recommended For You</h2>
+          <div id="recommendations" class="recommendations">
+            <!-- Recommendation cards will be injected here by JavaScript -->
+          </div>
+        </aside>
+
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>© 2026 Movie Recommender</p>
+  </footer>
+
+  <script src="mrScript.js"></script>
+
+  <script>
+    /* Movie rendering scaffold (no sample data included)
+       Implement fetchMovies() to return an array of movie objects:
+       [{ id, title, year, rating, poster }, ...]
+    */
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderMovieCard(movie) {
+      const card = document.createElement('article');
+      card.className = 'movie-card';
+      card.dataset.movieId = movie.id;
+      card.innerHTML = `
+        <div class="movie-poster">
+          <img src="${movie.poster || 'images/placeholder.png'}" alt="${escapeHtml(movie.title)} poster" />
+        </div>
+        <div class="movie-meta">
+          <h3 class="movie-title">${escapeHtml(movie.title)}</h3>
+          <div class="movie-sub">${movie.year} • Rating ${movie.rating}</div>
+        </div>
+      `;
+      return card;
+    }
+
+    function populateMovieList(movies) {
+      const listEl = document.getElementById('movie-list');
+      if (!listEl) return;
+      listEl.innerHTML = '';
+      movies.forEach(m => listEl.appendChild(renderMovieCard(m)));
+    }
+
+    function populateRecommendations(movies) {
+      const recEl = document.getElementById('recommendations');
+      if (!recEl) return;
+      recEl.innerHTML = '';
+      const top = movies.slice().sort((a,b) => b.rating - a.rating).slice(0,3);
+      top.forEach(m => recEl.appendChild(renderMovieCard(m)));
+    }
+
+    async function fetchMovies() {
+      // TODO: replace with real API call
+      // Example:
+      // const resp = await fetch('/api/movies');
+      // return await resp.json();
+      return []; // empty by default
+    }
+
+    document.addEventListener('DOMContentLoaded', async function () {
+      try {
+        const movies = await fetchMovies();
+        if (movies && movies.length) {
+          populateMovieList(movies);
+          populateRecommendations(movies);
+        }
+      } catch (err) {
+        console.error('Failed to load movies', err);
+      }
+    });
+  </script>
+</body>
+</html>
