@@ -164,7 +164,7 @@ document.addEventListener('DOMContentLoaded', function () {
       const result = await performLoginRequest(username, password);
       if (result.success) {
         setLoggedInUser(result.username || username);
-        window.location.href = 'MovieRecommender.HTML';
+        window.location.href = 'index.HTML';
       } else {
         const errEl = document.getElementById('loginError');
         if (errEl) { errEl.textContent = result.message || 'Login failed'; errEl.style.display = 'block'; }

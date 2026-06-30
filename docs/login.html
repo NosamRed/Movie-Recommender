@@ -10,7 +10,7 @@
   <header class="site-header">
     <nav class="navbar">
       <div class="nav-left">
-        <a class="brand" href="MovieRecommender.HTML">Movie Recommender</a>
+        <a class="brand" href="index.HTML">Movie Recommender</a>
       </div>
 
       <div class="nav-right" id="navRightLogin">
@@ -32,7 +32,7 @@
 
         <div class="form-actions">
           <button type="submit" class="btn primary">Sign in</button>
-          <a class="btn link" href="MovieRecommender.HTML">Cancel</a>
+          <a class="btn link" href="index.HTML">Cancel</a>
         </div>
 
         <div id="loginError" class="form-error" style="display:none;color:#c00;margin-top:8px;"></div>
@@ -49,7 +49,7 @@
     // If already logged in, go back to main page
     try {
       const u = localStorage.getItem('mr_username');
-      if (u) window.location.href = 'MovieRecommender.HTML';
+      if (u) window.location.href = 'index.HTML';
     } catch (e) {}
   </script>
 </body>
