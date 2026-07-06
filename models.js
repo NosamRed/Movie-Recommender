@@ -30,24 +30,19 @@ let defaultConnection = null;
 let usersConn = null;      // connection bound to dbName1 (useDb)
 let sampleConn = null;     // connection bound to dbName2 (useDb)
 
-
- //Connect to the cluster using MONGO_URI1 and prepare useDb connections.
-
+// Connect to the cluster using MONGO_URI1 and prepare useDb connections.
 export async function connectDB() {
   if (connected && mongoose.connection.readyState === 1) {
     return mongoose.connection;
   }
 
   try {
-    // Connect once to the cluster using dbName1 as the default DB
+    // Modern Mongoose (v7–v9) does NOT allow useNewUrlParser or useUnifiedTopology.
     defaultConnection = await mongoose.connect(MONGO_URI1, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
       serverSelectionTimeoutMS: 5000
     });
 
     // Bind models to specific databases using useDb
-    // useCache: true ensures the same connection object is reused for repeated calls
     usersConn = mongoose.connection.useDb(dbName1, { useCache: true });
     sampleConn = mongoose.connection.useDb(dbName2, { useCache: true });
 
@@ -60,15 +55,12 @@ export async function connectDB() {
   }
 }
 
-
 export function getModels() {
   if (!connected) {
     throw new Error("connectDB() must be called before getModels()");
   }
 
-
   const User = usersConn.models.Users || usersConn.model("Users", UserSchema, "uInfo");
-
   const Movie = sampleConn.models.Movie || sampleConn.model("Movie", MovieSchema, "movies");
 
   return { User, Movie, usersConn, sampleConn };

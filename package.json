@@ -1,0 +1,27 @@
+{
+  "name": "movie-recommender",
+  "version": "1.0.0",
+  "description": "A program that will recommend movies to a user based off what they like. It will do this by using Semantic Search",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NosamRed/Movie-Recommender.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/NosamRed/Movie-Recommender/issues"
+  },
+  "homepage": "https://github.com/NosamRed/Movie-Recommender#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "mongoose": "^9.7.4"
+  }
+}
