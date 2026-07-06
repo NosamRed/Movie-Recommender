@@ -94,7 +94,7 @@ async function start() {
   // Adjust the folder name/path to match your project layout
   app.use(express.static(path.join(__dirname, 'public')));
 
-  const port = process.env.PORT || 5500;
+  const port = process.env.PORT || 3000;
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);
   });

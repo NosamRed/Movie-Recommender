@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
 
-const user = encodeURIComponent(process.env.MDB_USER ?? "NosamRed");
-const pass = encodeURIComponent(process.env.MDB_PASS ?? "wMjqTl3sCqCKUSSo");
-const cluster = process.env.MDB_CLUSTER ?? "note-taking-app.mdyy2ls.mongodb.net";
+const user = encodeURIComponent(process.env.MDB_USER);
+const pass = encodeURIComponent(process.env.MDB_PASS);
+const cluster = process.env.MDB_CLUSTER;
 
 // Default DB used for the initial connection; models can be bound to other DBs via useDb
 const dbName1 = process.env.MDB_NAME1 ?? "Users";      // primary DB (e.g., Users)
