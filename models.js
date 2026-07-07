@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config();
+
 import mongoose from "mongoose";
 
 const user = encodeURIComponent(process.env.MDB_USER);
@@ -29,6 +32,9 @@ let connected = false;
 let defaultConnection = null;
 let usersConn = null;      // connection bound to dbName1 (useDb)
 let sampleConn = null;     // connection bound to dbName2 (useDb)
+
+// console.log("MONGO_URI1:", MONGO_URI1);
+// console.log("MONGO_URI2:", MONGO_URI2);
 
 // Connect to the cluster using MONGO_URI1 and prepare useDb connections.
 export async function connectDB() {

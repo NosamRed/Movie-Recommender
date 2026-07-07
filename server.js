@@ -2,7 +2,12 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-console.log("Loaded cluster:", process.env.MDB_CLUSTER);
+// console.log("Loaded cluster:", process.env.MDB_CLUSTER);
+// console.log("MDB_USER:", process.env.MDB_USER);
+// console.log("MDB_PASS:", process.env.MDB_PASS);
+// console.log("MDB_CLUSTER:", process.env.MDB_CLUSTER);
+// console.log("MDB_NAME1:", process.env.MDB_NAME1);
+// console.log("MDB_NAME2:", process.env.MDB_NAME2);
 
 import express from 'express';
 import cors from 'cors';
