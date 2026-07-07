@@ -99,7 +99,12 @@ async function start() {
 
   // Serve static frontend files if you keep them in a "public" folder
   // Adjust the folder name/path to match your project layout
-  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(__dirname));
+
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "index.HTML"));
+});
+
 
   const port = process.env.PORT || 3000;
   app.listen(port, () => {
