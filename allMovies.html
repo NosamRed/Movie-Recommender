@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>All Movies</title>
+  <link rel="stylesheet" href="allMovies.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <a class="brand" href="index.HTML">Movie Recommender</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <h1>All Movies</h1>
+
+    <div class="pagination-bar">
+      <button id="prevBtn">Previous</button>
+
+      <span id="pageDisplay"></span>
+
+      <input id="pageInput" type="number" min="1" class="page-input" />
+      <button id="goBtn">Go</button>
+
+      <button id="nextBtn">Next</button>
+    </div>
+
+    <div id="movie-grid" class="movie-grid"></div>
+  </main>
+
+  <script src="allMovies.js"></script>
+</body>
+</html>

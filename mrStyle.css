@@ -25,32 +25,6 @@
   position: relative;
 }
 
-/* --- Login button (original look preserved) --- */
-/* Use .nav-btn for any nav buttons; #loginBtn is the specific element */
-.nav-btn,
-/* #loginBtn {
-  display: inline-block;
-  padding: 8px 14px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, #2b7cff 0%, #1a5fe6 100%);
-  color: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(26,95,230,0.28);
-  transition: transform 120ms ease, box-shadow 120ms ease, opacity 120ms ease;
-  line-height: 1;
-} */
-
-/* Hover / active states (same as original) */
-/* .nav-btn:hover,
-#loginBtn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(26,95,230,0.28);
-  opacity: 0.98;
-}
-
 /* Focus accessibility */
 .nav-btn:focus,
 #loginBtn:focus {
@@ -58,8 +32,7 @@
   outline-offset: 2px;
 }
 
-/* --- Logged-in state: keep the same visual weight but make it look like text link */
-/* This preserves the original appearance while showing username */
+/* --- Logged-in state --- */
 .nav-btn.user-logged-in,
 #loginBtn.user-logged-in {
   background: transparent;
@@ -71,15 +44,14 @@
   text-decoration: none;
 }
 
-/* Hover for username (subtle) */
 .nav-btn.user-logged-in:hover,
 #loginBtn.user-logged-in:hover {
   background: rgba(255,255,255,0.04);
   transform: none;
   box-shadow: none;
-} */
+}
 
-/* --- Optional user menu (keeps original style if you enable it) --- */
+/* --- Optional user menu --- */
 .user-menu {
   display: none;
   position: absolute;
@@ -94,7 +66,6 @@
   z-index: 1000;
 }
 
-/* Menu items */
 .user-menu .menu-item,
 #logoutBtn {
   display: block;
@@ -114,7 +85,7 @@
   background: rgba(255,255,255,0.03);
 }
 
-/* --- Login form / page (keeps consistent look) --- */
+/* --- Login form / page --- */
 .login-card {
   max-width: 420px;
   margin: 48px auto;
@@ -177,18 +148,26 @@
 /* Small responsive tweaks */
 @media (max-width: 520px) {
   .navbar { padding: 10px 12px; }
-  /* .nav-btn, #loginBtn { padding: 8px 10px; font-size: 0.95rem; } */
   .login-card { margin: 28px 12px; padding: 18px; }
 }
 
+/* --------------------------------------------------------- */
+/* NEW ADDITIONS FOR MOVIE GRID, PAGINATION, AND TOGGLE VIEW */
+/* --------------------------------------------------------- */
+
+.movie-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 
 .movie-card {
   width: 200px;
   background: #111;
   padding: 10px;
-  margin: 10px;
   border-radius: 8px;
   color: #fff;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
 }
 
 .movie-card img {
@@ -196,8 +175,36 @@
   border-radius: 6px;
 }
 
-.movie-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+.toggle-btn {
+  padding: 10px 16px;
+  background: #2b7cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.toggle-btn:hover {
+  background: #1a5fe6;
+}
+
+.pagination {
+  margin-bottom: 12px;
+}
+
+.pagination button {
+  padding: 8px 12px;
+  margin-right: 8px;
+  background: #333;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: default;
 }

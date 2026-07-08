@@ -101,7 +101,7 @@ async function getRecommendations(payload) {
   }
 }
 
-/* ---------------- MOVIE FETCHING ---------------- */
+/* ---------------- COMPACT MOVIE FETCHING ---------------- */
 
 async function fetchMovies() {
   try {
@@ -113,8 +113,6 @@ async function fetchMovies() {
     return [];
   }
 }
-
-/* ---------------- MOVIE RENDERING ---------------- */
 
 function renderMovieCard(movie) {
   const card = document.createElement("article");
@@ -135,7 +133,7 @@ function populateMovieList(movies) {
   const listEl = document.getElementById("movie-list");
   if (!listEl) return;
   listEl.innerHTML = "";
-  movies.forEach(m => listEl.appendChild(renderMovieCard(m)));
+  movies.slice(0, 4).forEach(m => listEl.appendChild(renderMovieCard(m)));
 }
 
 /* ---------------- DOM LOADED ---------------- */
@@ -190,12 +188,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     });
   }
 
-  // Load movies
-  try {
-    const movies = await fetchMovies();
-    populateMovieList(movies);
-  } catch (err) {
-    console.error("Failed to load movies:", err);
+  // Load compact movie list (4 movies)
+  const movies = await fetchMovies();
+  populateMovieList(movies);
+
+  // NEW: Show All Movies button → open new page
+  const toggleBtn = document.getElementById("toggleViewBtn");
+  if (toggleBtn) {
+    toggleBtn.onclick = () => {
+      window.location.href = "allMovies.html";
+    };
   }
 });
 
