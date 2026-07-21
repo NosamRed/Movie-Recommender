@@ -38,6 +38,11 @@ function renderMovies(movies) {
       <p>${movie.year}</p>
     `;
 
+    // Click → movie details page
+    card.onclick = () => {
+      window.location.href = `movie.html?id=${movie._id}`;
+    };
+
     grid.appendChild(card);
   });
 }

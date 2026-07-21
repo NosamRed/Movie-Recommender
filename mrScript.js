@@ -105,7 +105,7 @@ async function getRecommendations(payload) {
 
 async function fetchMovies() {
   try {
-    const resp = await fetch(`${API_BASE}/api/movies?fields=title,year,poster`);
+    const resp = await fetch(`${API_BASE}/api/movies?fields=_id,title,year,poster`);
     if (!resp.ok) throw new Error("Failed to fetch movies");
     return await resp.json();
   } catch (err) {
@@ -126,6 +126,12 @@ function renderMovieCard(movie) {
       <div class="movie-sub">${movie.year}</div>
     </div>
   `;
+
+  // Make card clickable → movie details page
+  card.onclick = () => {
+    window.location.href = `movie.html?id=${movie._id}`;
+  };
+
   return card;
 }
 
@@ -192,7 +198,7 @@ document.addEventListener('DOMContentLoaded', async function () {
   const movies = await fetchMovies();
   populateMovieList(movies);
 
-  // NEW: Show All Movies button → open new page
+  // Show All Movies button → open allMovies.html
   const toggleBtn = document.getElementById("toggleViewBtn");
   if (toggleBtn) {
     toggleBtn.onclick = () => {

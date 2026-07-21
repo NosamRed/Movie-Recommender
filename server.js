@@ -19,9 +19,7 @@ async function start() {
   await connectDB();
   const { User, Movie } = getModels();
 
-  // -------------------------------
-  // GET /api/movies (compact list)
-  // -------------------------------
+  // Compact list (used by main page)
   app.get('/api/movies', async (req, res) => {
     try {
       const rawLimit = parseInt(req.query.limit || '200', 10);
@@ -45,9 +43,7 @@ async function start() {
     }
   });
 
-  // -------------------------------
-  // NEW: GET /api/movies/paged
-  // -------------------------------
+  // Paged list (used by allMovies.html)
   app.get("/api/movies/paged", async (req, res) => {
     try {
       const page = parseInt(req.query.page || "1", 10);
@@ -76,9 +72,27 @@ async function start() {
     }
   });
 
-  // -------------------------------
-  // POST /api/login
-  // -------------------------------
+  // Single movie details (for movie.html)
+  app.get("/api/movie/:id", async (req, res) => {
+    try {
+      const id = req.params.id;
+
+      const movie = await Movie.findById(id, {
+        plot_embedding_hf: 0 // exclude vector
+      }).lean();
+
+      if (!movie) {
+        return res.status(404).json({ error: "Movie not found" });
+      }
+
+      res.json(movie);
+    } catch (err) {
+      console.error("GET /api/movie/:id error:", err);
+      res.status(500).json({ error: "Failed to fetch movie" });
+    }
+  });
+
+  // Login
   app.post('/api/login', async (req, res) => {
     try {
       const { username, password } = req.body;
@@ -98,9 +112,7 @@ async function start() {
     }
   });
 
-  // -------------------------------
-  // Serve static files
-  // -------------------------------
+  // Static files
   app.use(express.static(__dirname));
 
   app.get("/", (req, res) => {
