@@ -6,6 +6,7 @@
 }
 
 .movie-card-large {
+  position: relative; /* anchors the favorite star */
   background: #111;
   padding: 10px;
   border-radius: 8px;

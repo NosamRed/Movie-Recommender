@@ -6,7 +6,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { connectDB, getModels, verifyUserPassword } from './models.js';
+import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite } from './models.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -109,6 +109,40 @@ async function start() {
     } catch (err) {
       console.error('POST /api/login error:', err);
       return res.status(500).json({ error: 'Login failed' });
+    }
+  });
+
+  // Get a user's favorite movie ids
+  app.get('/api/favorites/:username', async (req, res) => {
+    try {
+      const favorites = await getFavorites(req.params.username);
+      if (favorites === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      return res.json({ favorites });
+    } catch (err) {
+      console.error('GET /api/favorites/:username error:', err);
+      return res.status(500).json({ error: 'Failed to fetch favorites' });
+    }
+  });
+
+  // Add or remove a movie from a user's favorites
+  app.post('/api/favorites/toggle', async (req, res) => {
+    try {
+      const { username, movieId } = req.body;
+      if (!username || !movieId) {
+        return res.status(400).json({ error: 'username and movieId required' });
+      }
+
+      const result = await toggleFavorite(username, movieId);
+      if (!result) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      return res.json(result);
+    } catch (err) {
+      console.error('POST /api/favorites/toggle error:', err);
+      return res.status(500).json({ error: 'Failed to update favorites' });
     }
   });
 

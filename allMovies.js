@@ -38,6 +38,9 @@ function renderMovies(movies) {
       <p>${movie.year}</p>
     `;
 
+    // favorites.js — adds the clickable star, top-right of the card
+    addFavoriteStar(card, movie._id);
+
     // Click → movie details page
     card.onclick = () => {
       window.location.href = `movie.html?id=${movie._id}`;
@@ -47,7 +50,9 @@ function renderMovies(movies) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadFavorites(); // favorites.js — load before the first render so stars start correct
+
   loadPage(1);
 
   document.getElementById("prevBtn").onclick = () => {

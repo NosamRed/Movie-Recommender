@@ -17,7 +17,8 @@ export const MONGO_URI2 = `mongodb+srv://${user}:${pass}@${cluster}/${dbName2}?r
 // Schemas
 const UserSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  favoriteMovies: { type: [String], default: [] }
 }, { timestamps: true });
 
 // Example schema for sample_mflix (adjust fields to match your collection)
@@ -83,4 +84,45 @@ export async function verifyUserPassword(username, candidatePassword) {
   if (!userDoc) return null;
   const matches = userDoc.password === candidatePassword;
   return matches ? { username: userDoc.username, notes: userDoc.notes ?? [] } : null;
+}
+
+/* ---------------- Favorites ---------------- */
+
+// Some existing documents may have favoriteMovies stored as "" instead of
+// an array (see the uInfo collection) — normalize to an array either way.
+function normalizeFavorites(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+export async function getFavorites(username) {
+  const { User } = getModels();
+  const userDoc = await User.findOne({ username }).lean().exec();
+  if (!userDoc) return null;
+  return normalizeFavorites(userDoc.favoriteMovies);
+}
+
+// Adds the movieId if it isn't already favorited, removes it if it is.
+// Returns { favorites, isFavorited } or null if the user doesn't exist.
+export async function toggleFavorite(username, movieId) {
+  const { User } = getModels();
+  const userDoc = await User.findOne({ username }).exec();
+  if (!userDoc) return null;
+
+  const idStr = String(movieId);
+  const favorites = normalizeFavorites(userDoc.favoriteMovies);
+  const idx = favorites.indexOf(idStr);
+  let isFavorited;
+
+  if (idx === -1) {
+    favorites.push(idStr);
+    isFavorited = true;
+  } else {
+    favorites.splice(idx, 1);
+    isFavorited = false;
+  }
+
+  userDoc.favoriteMovies = favorites;
+  await userDoc.save();
+
+  return { favorites, isFavorited };
 }

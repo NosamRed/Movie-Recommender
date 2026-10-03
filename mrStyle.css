@@ -162,6 +162,7 @@
 }
 
 .movie-card {
+  position: relative; /* anchors the favorite star */
   width: 200px;
   background: #111;
   padding: 10px;
@@ -207,4 +208,57 @@
 .pagination button:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* --------------------------------------------------------- */
+/* FAVORITE STAR (shared by movie-card and movie-card-large) */
+/* --------------------------------------------------------- */
+
+.favorite-star {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  padding: 5px;
+  background: rgba(0, 0, 0, 0.45);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.favorite-star:hover {
+  background: rgba(0, 0, 0, 0.65);
+}
+
+.favorite-star:active {
+  transform: scale(0.92);
+}
+
+.favorite-star:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.favorite-star:focus-visible {
+  outline: 3px solid rgba(43, 124, 255, 0.6);
+  outline-offset: 2px;
+}
+
+.favorite-star .star-icon {
+  width: 100%;
+  height: 100%;
+  fill: transparent;       /* "unclicked" = see-through */
+  stroke: #fff;
+  stroke-width: 1.5;
+  transition: fill 0.15s ease, stroke 0.15s ease;
+}
+
+.favorite-star.favorited .star-icon {
+  fill: #ffd60a;            /* "clicked" = yellow */
+  stroke: #ffd60a;
 }

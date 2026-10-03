@@ -127,6 +127,9 @@ function renderMovieCard(movie) {
     </div>
   `;
 
+  // favorites.js — adds the clickable star, top-right of the card
+  addFavoriteStar(card, movie._id);
+
   // Make card clickable → movie details page
   card.onclick = () => {
     window.location.href = `movie.html?id=${movie._id}`;
@@ -192,6 +195,11 @@ document.addEventListener('DOMContentLoaded', async function () {
         }
       }
     });
+  }
+
+  // favorites.js — load before the first render so stars start correct
+  if (typeof loadFavorites === 'function') {
+    await loadFavorites();
   }
 
   // Load compact movie list (4 movies)
