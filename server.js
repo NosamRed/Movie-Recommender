@@ -5,6 +5,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
+import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
 import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite } from './models.js';
 
@@ -123,6 +124,32 @@ async function start() {
     } catch (err) {
       console.error('GET /api/favorites/:username error:', err);
       return res.status(500).json({ error: 'Failed to fetch favorites' });
+    }
+  });
+
+  // Full movie details (title/year/poster) for everything a user has favorited —
+  // used by favoriteMovies.html to render the grid.
+  app.get('/api/favorites/:username/movies', async (req, res) => {
+    try {
+      const favorites = await getFavorites(req.params.username);
+      if (favorites === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const ids = favorites.filter(id => mongoose.isValidObjectId(id));
+      if (ids.length === 0) {
+        return res.json({ movies: [] });
+      }
+
+      const docs = await Movie.find(
+        { _id: { $in: ids } },
+        { title: 1, year: 1, poster: 1 }
+      ).lean();
+
+      return res.json({ movies: docs });
+    } catch (err) {
+      console.error('GET /api/favorites/:username/movies error:', err);
+      return res.status(500).json({ error: 'Failed to fetch favorite movies' });
     }
   });
 

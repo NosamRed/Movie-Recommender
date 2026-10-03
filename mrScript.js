@@ -24,7 +24,7 @@ function setLoggedInUser(username) {
 
   try { localStorage.setItem(STORAGE_KEY, username); } catch (e) {}
 
-  if (userMenu) userMenu.style.display = 'block';
+  if (userMenu) userMenu.style.display = 'flex';
 }
 
 function clearLoggedInUser() {
@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', async function () {
       if (stored) {
         const userMenu = document.getElementById('userMenu');
         if (userMenu) {
-          userMenu.style.display = userMenu.style.display === 'block' ? 'none' : 'block';
+          userMenu.style.display = userMenu.style.display === 'flex' ? 'none' : 'flex';
           e.preventDefault();
         } else {
           if (loginEl.tagName.toLowerCase() === 'a') e.preventDefault();

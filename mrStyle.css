@@ -85,6 +85,14 @@
   background: rgba(255,255,255,0.03);
 }
 
+/* user-menu-container: holds the Favorite Movies link and Logout button
+   next to the username. JS toggles display between 'flex' and 'none';
+   this just governs how its children lay out once shown. */
+.user-menu-container {
+  align-items: center;
+  gap: 12px;
+}
+
 /* --- Login form / page --- */
 .login-card {
   max-width: 420px;

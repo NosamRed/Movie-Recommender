@@ -1,3 +1,9 @@
+// favorites.js
+// Shared by index.HTML (mrScript.js), allMovies.html (allMovies.js), and
+// favoriteMovies.html (favoriteMovies.js). Handles loading the logged-in
+// user's favorite movie ids and rendering the clickable star shown on
+// each movie card.
+
 const FAVORITES_API_BASE = window.location.hostname === "localhost"
   ? "http://localhost:3000"
   : "https://movie-recommender-d2xa.onrender.com";
@@ -69,9 +75,13 @@ const STAR_SVG = `<svg viewBox="0 0 24 24" class="star-icon" aria-hidden="true">
   <path d="M12 2.5l2.98 6.04 6.67.97-4.83 4.7 1.14 6.65L12 17.77l-5.96 3.13 1.14-6.65-4.83-4.7 6.67-.97z"/>
 </svg>`;
 
-// Creates the star <button> for a movie card. Appends itself to `card`
+// Creates the star <button> for a movie card and appends it to `card`
 // (card must have position: relative for the top-right placement to work).
-function addFavoriteStar(card, movieId) {
+//
+// onToggle(isFavorited) is optional — called after a successful toggle, so
+// a page can react (e.g. the favorites page removes the card when a movie
+// is unfavorited).
+function addFavoriteStar(card, movieId, onToggle) {
   const btn = document.createElement("button");
   const favorited = favoriteIds.has(String(movieId));
 
@@ -93,6 +103,8 @@ function addFavoriteStar(card, movieId) {
     btn.classList.toggle("favorited", result);
     btn.setAttribute("aria-pressed", result ? "true" : "false");
     btn.setAttribute("aria-label", result ? "Remove from favorites" : "Add to favorites");
+
+    if (typeof onToggle === "function") onToggle(result);
   };
 
   card.appendChild(btn);
