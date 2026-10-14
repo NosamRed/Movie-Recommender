@@ -7,7 +7,7 @@ import cors from 'cors';
 import path from 'path';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
-import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite } from './models.js';
+import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite, getRecommendedIds, updateRecommendations } from './models.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -170,6 +170,48 @@ async function start() {
     } catch (err) {
       console.error('POST /api/favorites/toggle error:', err);
       return res.status(500).json({ error: 'Failed to update favorites' });
+    }
+  });
+
+  // Full movie details (title/year/poster) for a user's current recommendedMovies —
+  // used by the homepage's "Recommended For You" section.
+  app.get('/api/recommendations/:username', async (req, res) => {
+    try {
+      const ids = await getRecommendedIds(req.params.username);
+      if (ids === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const objectIds = ids.filter(id => mongoose.isValidObjectId(id));
+      if (objectIds.length === 0) {
+        return res.json({ movies: [] });
+      }
+
+      const docs = await Movie.find(
+        { _id: { $in: objectIds } },
+        { title: 1, year: 1, poster: 1 }
+      ).lean();
+
+      return res.json({ movies: docs });
+    } catch (err) {
+      console.error('GET /api/recommendations/:username error:', err);
+      return res.status(500).json({ error: 'Failed to fetch recommendations' });
+    }
+  });
+
+  // Manually recompute recommendations (recommendedMovies is normally kept in
+  // sync automatically whenever favorites change — this is mainly for testing,
+  // or for re-running after the vector index itself changes).
+  app.post('/api/recommendations/:username/refresh', async (req, res) => {
+    try {
+      const movies = await updateRecommendations(req.params.username);
+      if (movies === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      return res.json({ movies });
+    } catch (err) {
+      console.error('POST /api/recommendations/:username/refresh error:', err);
+      return res.status(500).json({ error: 'Failed to refresh recommendations' });
     }
   });
 

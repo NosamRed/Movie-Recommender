@@ -114,7 +114,7 @@ async function fetchMovies() {
   }
 }
 
-function renderMovieCard(movie) {
+function renderMovieCard(movie, onFavoriteToggle) {
   const card = document.createElement("article");
   card.className = "movie-card";
   card.innerHTML = `
@@ -128,7 +128,7 @@ function renderMovieCard(movie) {
   `;
 
   // favorites.js — adds the clickable star, top-right of the card
-  addFavoriteStar(card, movie._id);
+  addFavoriteStar(card, movie._id, onFavoriteToggle);
 
   // Make card clickable → movie details page
   card.onclick = () => {
@@ -142,7 +142,49 @@ function populateMovieList(movies) {
   const listEl = document.getElementById("movie-list");
   if (!listEl) return;
   listEl.innerHTML = "";
-  movies.slice(0, 4).forEach(m => listEl.appendChild(renderMovieCard(m)));
+  // Favoriting/unfavoriting from this list changes recommendedMovies on the
+  // server too, so refresh the "Recommended For You" panel whenever a star here is clicked.
+  movies.slice(0, 4).forEach(m => listEl.appendChild(renderMovieCard(m, refreshRecommendations)));
+}
+
+/* ---------------- RECOMMENDATIONS (Recommended For You) ---------------- */
+
+async function fetchRecommendedMovies(username) {
+  try {
+    const resp = await fetch(`${API_BASE}/api/recommendations/${encodeURIComponent(username)}`);
+    if (!resp.ok) throw new Error("Failed to fetch recommendations");
+    const data = await resp.json();
+    return data.movies || [];
+  } catch (err) {
+    console.error("fetchRecommendedMovies error:", err);
+    return [];
+  }
+}
+
+function populateRecommendations(movies, emptyMessage) {
+  const listEl = document.getElementById("recommendations");
+  if (!listEl) return;
+  listEl.innerHTML = "";
+
+  if (!movies.length) {
+    listEl.innerHTML = `<p class="muted">${emptyMessage}</p>`;
+    return;
+  }
+
+  movies.forEach(m => listEl.appendChild(renderMovieCard(m, refreshRecommendations)));
+}
+
+// Re-fetches and re-renders recommendations for whoever's currently logged
+// in. The server recomputes recommendedMovies automatically on every
+// favorite toggle, so this just picks up whatever it last saved.
+async function refreshRecommendations() {
+  const username = typeof getCurrentUsername === 'function' ? getCurrentUsername() : null;
+  if (!username) {
+    populateRecommendations([], "Log in and favorite a few movies to see recommendations here.");
+    return;
+  }
+  const movies = await fetchRecommendedMovies(username);
+  populateRecommendations(movies, "Favorite a few movies to get personalized recommendations.");
 }
 
 /* ---------------- DOM LOADED ---------------- */
@@ -205,6 +247,9 @@ document.addEventListener('DOMContentLoaded', async function () {
   // Load compact movie list (4 movies)
   const movies = await fetchMovies();
   populateMovieList(movies);
+
+  // Recommended For You
+  await refreshRecommendations();
 
   // Show All Movies button → open allMovies.html
   const toggleBtn = document.getElementById("toggleViewBtn");

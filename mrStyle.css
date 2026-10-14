@@ -184,6 +184,16 @@
   border-radius: 6px;
 }
 
+.recommendations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.muted {
+  color: #888;
+}
+
 .toggle-btn {
   padding: 10px 16px;
   background: #2b7cff;
