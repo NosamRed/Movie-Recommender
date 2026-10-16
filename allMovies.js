@@ -2,19 +2,32 @@ const API_BASE = window.location.hostname === "localhost"
   ? "http://localhost:3000"
   : "https://movie-recommender-d2xa.onrender.com";
 
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 let currentPage = 1;
 let totalPages = 1;
+let currentSearch = "";
 const pageSize = 150; // 30 rows × 5 columns
 
 async function loadPage(page) {
-  const resp = await fetch(`${API_BASE}/api/movies/paged?page=${page}&size=${pageSize}`);
+  const params = new URLSearchParams({ page, size: pageSize });
+  if (currentSearch) params.set("search", currentSearch);
+
+  const resp = await fetch(`${API_BASE}/api/movies/paged?${params.toString()}`);
   const data = await resp.json();
 
   currentPage = data.page;
   totalPages = data.totalPages;
 
   document.getElementById("pageDisplay").textContent =
-    `Page ${currentPage} of ${totalPages}`;
+    data.total === 0 ? "No movies found" : `Page ${currentPage} of ${totalPages}`;
 
   document.getElementById("pageInput").value = currentPage;
 
@@ -27,6 +40,11 @@ async function loadPage(page) {
 function renderMovies(movies) {
   const grid = document.getElementById("movie-grid");
   grid.innerHTML = "";
+
+  if (movies.length === 0) {
+    grid.innerHTML = `<p class="muted">No movies match "${escapeHtml(currentSearch)}".</p>`;
+    return;
+  }
 
   movies.forEach(movie => {
     const card = document.createElement("div");
@@ -69,4 +87,15 @@ document.addEventListener("DOMContentLoaded", async () => {
       loadPage(newPage);
     }
   };
+
+  // Live search by title — debounced so it doesn't fire a request on every keystroke
+  let searchDebounceTimer = null;
+  document.getElementById("searchInput").addEventListener("input", (e) => {
+    clearTimeout(searchDebounceTimer);
+    const value = e.target.value;
+    searchDebounceTimer = setTimeout(() => {
+      currentSearch = value.trim();
+      loadPage(1); // a new search always starts back at page 1
+    }, 300);
+  });
 });

@@ -20,6 +20,28 @@
   border-radius: 6px;
 }
 
+.search-input {
+  display: block;
+  width: 100%;
+  max-width: 400px;
+  margin: 16px 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  font-size: 1rem;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #2b7cff;
+}
+
+.muted {
+  color: #888;
+}
+
 .pagination-bar {
   display: flex;
   align-items: center;

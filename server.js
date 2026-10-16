@@ -16,6 +16,12 @@ const app = express();
 app.use(express.json());
 app.use(cors({ origin: true }));
 
+// So a search term like "Se7en" or "(500) Days" is matched literally,
+// not interpreted as a regex pattern.
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 async function start() {
   await connectDB();
   const { User, Movie } = getModels();
@@ -49,16 +55,24 @@ async function start() {
     try {
       const page = parseInt(req.query.page || "1", 10);
       const size = parseInt(req.query.size || "150", 10); // 30 rows × 5 columns
+      const search = (req.query.search || "").trim();
+
+      // Case-insensitive substring match on title. Escaped so characters like
+      // "." or "(" in a search term are treated literally, not as regex syntax.
+      const filter = search
+        ? { title: { $regex: escapeRegex(search), $options: "i" } }
+        : {};
 
       const skip = (page - 1) * size;
 
-      const docs = await Movie.find({}, { title: 1, year: 1, poster: 1 })
+      const docs = await Movie.find(filter, { title: 1, year: 1, poster: 1 })
+        .sort({ title: 1 }) // stable order so pagination doesn't shuffle between requests
         .skip(skip)
         .limit(size)
         .lean();
 
-      const total = await Movie.countDocuments();
-      const totalPages = Math.ceil(total / size);
+      const total = await Movie.countDocuments(filter);
+      const totalPages = Math.max(1, Math.ceil(total / size));
 
       res.json({
         page,
