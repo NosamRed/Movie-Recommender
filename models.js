@@ -140,7 +140,7 @@ export async function toggleFavorite(username, movieId) {
 /* ---------------- Recommendations ---------------- */
 
 const RECOMMENDATION_LIMIT = 10;
-const VECTOR_INDEX_NAME = "PlotSemanticSearch";
+const VECTOR_INDEX_NAME = "Recommendations";
 const VECTOR_NUM_CANDIDATES = 150;
 
 // Elementwise average of one or more equal-length embedding vectors.
