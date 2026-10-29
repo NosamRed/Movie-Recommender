@@ -65,13 +65,31 @@ async function start() {
 
       const skip = (page - 1) * size;
 
-      const docs = await Movie.find(filter, { title: 1, year: 1, poster: 1 })
-        .sort({ title: 1 }) // stable order so pagination doesn't shuffle between requests
-        .skip(skip)
-        .limit(size)
-        .lean();
+      // sample_mflix has multiple documents for some movies (same title/year,
+      // different _id) — group them down to one representative per movie
+      // before paging, so duplicates don't show up in the grid.
+      const basePipeline = [
+        { $match: filter },
+        { $sort: { _id: 1 } }, // deterministic pick when grouping
+        {
+          $group: {
+            _id: { title: "$title", year: "$year" },
+            doc: { $first: "$$ROOT" }
+          }
+        },
+        { $replaceRoot: { newRoot: "$doc" } }
+      ];
 
-      const total = await Movie.countDocuments(filter);
+      const docs = await Movie.aggregate([
+        ...basePipeline,
+        { $sort: { year: 1, title: 1 } }, // by release year; title breaks ties within a year
+        { $skip: skip },
+        { $limit: size },
+        { $project: { title: 1, year: 1, poster: 1 } }
+      ]);
+
+      const countResult = await Movie.aggregate([...basePipeline, { $count: "total" }]);
+      const total = countResult[0]?.total || 0;
       const totalPages = Math.max(1, Math.ceil(total / size));
 
       res.json({
