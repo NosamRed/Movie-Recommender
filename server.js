@@ -70,6 +70,11 @@ async function start() {
       // before paging, so duplicates don't show up in the grid.
       const basePipeline = [
         { $match: filter },
+        // Trim to just what we need BEFORE grouping/sorting — otherwise each
+        // doc still carries its full plot_embedding_hf array (384 numbers)
+        // into the in-memory sort, which can exceed MongoDB's 100MB
+        // aggregation sort limit and fail outright.
+        { $project: { _id: 1, title: 1, year: 1, poster: 1 } },
         { $sort: { _id: 1 } }, // deterministic pick when grouping
         {
           $group: {
@@ -84,8 +89,7 @@ async function start() {
         ...basePipeline,
         { $sort: { year: 1, title: 1 } }, // by release year; title breaks ties within a year
         { $skip: skip },
-        { $limit: size },
-        { $project: { title: 1, year: 1, poster: 1 } }
+        { $limit: size }
       ]);
 
       const countResult = await Movie.aggregate([...basePipeline, { $count: "total" }]);

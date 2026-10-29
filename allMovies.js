@@ -20,8 +20,18 @@ async function loadPage(page) {
   const params = new URLSearchParams({ page, size: pageSize });
   if (currentSearch) params.set("search", currentSearch);
 
-  const resp = await fetch(`${API_BASE}/api/movies/paged?${params.toString()}`);
-  const data = await resp.json();
+  let data;
+  try {
+    const resp = await fetch(`${API_BASE}/api/movies/paged?${params.toString()}`);
+    data = await resp.json();
+    if (!resp.ok) throw new Error(data.error || `Request failed (${resp.status})`);
+  } catch (err) {
+    console.error("loadPage error:", err);
+    document.getElementById("pageDisplay").textContent = "Error loading movies";
+    document.getElementById("movie-grid").innerHTML =
+      `<p class="muted">Couldn't load movies: ${escapeHtml(err.message)}</p>`;
+    return;
+  }
 
   currentPage = data.page;
   totalPages = data.totalPages;
