@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import mongoose from "mongoose";
+import { embedText, embeddingsEnabled } from "./embeddings.js";
 
 const user = encodeURIComponent(process.env.MDB_USER);
 const pass = encodeURIComponent(process.env.MDB_PASS);
@@ -340,7 +341,54 @@ export async function addUserMovie(username, input) {
   // Inserted with the raw driver on purpose: blank fields are stored as "N/A",
   // which the Mongoose schema's Number fields (e.g. year) would reject.
   const result = await Movie.collection.insertOne(doc);
+
+  // Embed the plot the same way the existing movies were. Deliberately not
+  // awaited: the user shouldn't wait on Hugging Face, and a failure here must
+  // never undo the save (embedMissingAddedMovies retries it on the next start).
+  if (plot !== NA && embeddingsEnabled()) {
+    attachEmbedding(result.insertedId, plot);
+  }
+
   return { _id: String(result.insertedId), title };
+}
+
+// Embeds `plot` and stores it as plot_embedding_hf on the movie. Never throws.
+async function attachEmbedding(movieId, plot) {
+  try {
+    const { Movie } = getModels();
+    const vector = await embedText(plot);
+    await Movie.collection.updateOne({ _id: movieId }, { $set: { plot_embedding_hf: vector } });
+    console.log(`Embedded added movie ${movieId}`);
+    return true;
+  } catch (err) {
+    console.error(`Could not embed added movie ${movieId}:`, err.message);
+    return false;
+  }
+}
+
+// Retries embedding for user-added movies that still don't have one (e.g.
+// Hugging Face was down, or HF_TOKEN wasn't set yet, when they were added).
+// Returns how many were embedded.
+export async function embedMissingAddedMovies(limit = 25) {
+  if (!embeddingsEnabled()) return 0;
+
+  const { Movie } = getModels();
+  const pending = await Movie.collection
+    .find(
+      {
+        addedBy: { $exists: true },
+        plot_embedding_hf: { $exists: false },
+        plot: { $exists: true, $nin: [NA, ""] }
+      },
+      { projection: { plot: 1 }, limit }
+    )
+    .toArray();
+
+  let embedded = 0;
+  for (const movie of pending) {
+    if (await attachEmbedding(movie._id, movie.plot)) embedded++;
+  }
+  return embedded;
 }
 
 // Compact list (id/title/year/poster) of the movies a user added, newest first.

@@ -7,7 +7,8 @@ import cors from 'cors';
 import path from 'path';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
-import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite, getRecommendedIds, updateRecommendations, addUserMovie, getAddedMovies } from './models.js';
+import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite, getRecommendedIds, updateRecommendations, addUserMovie, getAddedMovies, embedMissingAddedMovies } from './models.js';
+import { embeddingsEnabled } from './embeddings.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -293,6 +294,17 @@ async function start() {
   Movie.collection
     .createIndex({ addedBy: 1 }, { sparse: true })
     .catch(err => console.warn('Could not create addedBy index:', err.message));
+
+  // Added movies get their plot embedded through Hugging Face. Without a token
+  // they're still saved, just not embedded (so they can't be recommended).
+  if (!embeddingsEnabled()) {
+    console.warn('HF_TOKEN is not set — added movies will be saved without embeddings.');
+  } else {
+    // Not awaited. Picks up any added movie whose embedding failed earlier.
+    embedMissingAddedMovies()
+      .then(n => { if (n) console.log(`Embedded ${n} previously un-embedded added movie(s)`); })
+      .catch(err => console.warn('Embedding backfill failed:', err.message));
+  }
 
   // Static files
   app.use(express.static(__dirname));
