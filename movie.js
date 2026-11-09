@@ -123,7 +123,7 @@ async function loadMovie() {
 function renderMovie(movie) {
   const container = document.getElementById("movie-details");
 
-  const posterHtml = movie.poster
+  const posterHtml = (movie.poster && movie.poster !== "N/A")
     ? `<img src="${esc(movie.poster)}" alt="${esc(movie.title)} poster"
             class="movie-detail-poster"
             onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'movie-detail-poster poster-missing',textContent:'No poster available'}))">`
@@ -134,7 +134,9 @@ function renderMovie(movie) {
     Year: movie.year,
     Released: movie.released,
     Rated: movie.rated,
-    Runtime: movie.runtime ? `${movie.runtime} minutes` : null,
+    Runtime: (Number.isFinite(movie.runtime) && movie.runtime > 0)
+      ? `${movie.runtime} minutes`
+      : (movie.runtime || null),
     Type: movie.type
   };
   const factsHtml = Object.entries(facts)
@@ -195,10 +197,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loadMovie();
 
   document.getElementById("backBtn").onclick = () => {
-    if (document.referrer.includes("allMovies.html")) {
-      window.location.href = "allMovies.html";
-    } else {
-      window.location.href = "index.HTML";
-    }
+    const listPages = ["allMovies.html", "favoriteMovies.html", "addedMovies.html"];
+    const cameFrom = listPages.find(page => document.referrer.includes(page));
+    window.location.href = cameFrom || "index.HTML";
   };
 });

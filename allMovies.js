@@ -61,9 +61,9 @@ function renderMovies(movies) {
     card.className = "movie-card-large";
 
     card.innerHTML = `
-      <img src="${movie.poster}" alt="${movie.title}">
-      <h3>${movie.title}</h3>
-      <p>${movie.year}</p>
+      <img src="${posterSrc(movie.poster)}" alt="${safeText(movie.title)}">
+      <h3>${safeText(movie.title)}</h3>
+      <p>${safeText(movie.year)}</p>
     `;
 
     // favorites.js — adds the clickable star, top-right of the card

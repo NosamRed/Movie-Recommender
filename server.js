@@ -7,7 +7,7 @@ import cors from 'cors';
 import path from 'path';
 import mongoose from 'mongoose';
 import { fileURLToPath } from 'url';
-import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite, getRecommendedIds, updateRecommendations } from './models.js';
+import { connectDB, getModels, verifyUserPassword, getFavorites, toggleFavorite, getRecommendedIds, updateRecommendations, addUserMovie, getAddedMovies } from './models.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -250,6 +250,49 @@ async function start() {
       return res.status(500).json({ error: 'Failed to refresh recommendations' });
     }
   });
+
+  // Add a movie the user filled in by hand (movieAdder.html)
+  app.post('/api/added-movies', async (req, res) => {
+    try {
+      const { username, movie } = req.body || {};
+      if (typeof username !== 'string' || !username || !movie || typeof movie !== 'object') {
+        return res.status(400).json({ error: 'username and movie required' });
+      }
+
+      const result = await addUserMovie(username, movie);
+      if (!result) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      return res.status(201).json(result);
+    } catch (err) {
+      if (err.code === 'VALIDATION') {
+        return res.status(400).json({ error: err.message });
+      }
+      console.error('POST /api/added-movies error:', err);
+      return res.status(500).json({ error: 'Failed to add movie' });
+    }
+  });
+
+  // Movies a user has added (addedMovies.html)
+  app.get('/api/added-movies/:username', async (req, res) => {
+    try {
+      const movies = await getAddedMovies(req.params.username);
+      if (movies === null) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      return res.json({ movies });
+    } catch (err) {
+      console.error('GET /api/added-movies/:username error:', err);
+      return res.status(500).json({ error: 'Failed to fetch added movies' });
+    }
+  });
+
+  // Keeps the "Added Movies" lookup fast. Sparse, so only user-added movies are
+  // indexed. Not awaited — if the DB user can't create indexes, it just logs.
+  Movie.collection
+    .createIndex({ addedBy: 1 }, { sparse: true })
+    .catch(err => console.warn('Could not create addedBy index:', err.message));
 
   // Static files
   app.use(express.static(__dirname));

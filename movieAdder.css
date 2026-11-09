@@ -1,0 +1,71 @@
+/* Extra styling for the form version of the movie details layout.
+   Panel, header, sections and label/value rows come from movie.css. */
+
+.form-hint {
+  margin: 0 0 16px 0;
+  color: #9fb3ff;
+}
+
+.poster-preview {
+  flex-shrink: 0;
+}
+
+/* Inputs */
+.field {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  font: inherit;
+  color-scheme: dark; /* light calendar icon on the date picker */
+}
+
+.field::placeholder {
+  color: #888;
+}
+
+.field:focus {
+  outline: none;
+  border-color: #2b7cff;
+}
+
+textarea.field {
+  resize: vertical;
+}
+
+.title-field {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+/* Submit row */
+.form-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.form-actions .toggle-btn {
+  margin-bottom: 0;
+}
+
+.form-actions .toggle-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.form-message {
+  color: #ff6b6b;
+}
+
+.form-message.ok {
+  color: #7ee787;
+}

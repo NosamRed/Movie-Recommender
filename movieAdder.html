@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Add a Movie</title>
+  <link rel="stylesheet" href="mrStyle.css" />
+  <link rel="stylesheet" href="movie.css" />
+  <link rel="stylesheet" href="movieAdder.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <a class="brand" href="index.HTML">Movie Recommender</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <button id="backBtn" class="back-btn" type="button">← Back</button>
+
+    <!-- Same layout as movie.html's details panel, but every value is an input -->
+    <form id="movieForm" class="movie-details" autocomplete="off">
+      <p class="form-hint">
+        Fill in what you know. Anything left blank is saved as N/A. Only the title is required.
+        Separate multiple genres, cast members, etc. with commas.
+      </p>
+
+      <div class="movie-header">
+        <div id="posterPreview" class="poster-preview">
+          <div class="movie-detail-poster poster-missing">No poster available</div>
+        </div>
+
+        <div class="movie-header-info">
+          <input id="title" class="field title-field" type="text" maxlength="300"
+                 placeholder="Title (required)" aria-label="Title" required />
+
+          <dl class="kv">
+            <div class="kv-row">
+              <dt><label for="year">Year</label></dt>
+              <dd><input id="year" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+            </div>
+            <div class="kv-row">
+              <dt><label for="released">Released</label></dt>
+              <dd><input id="released" class="field" type="date" /></dd>
+            </div>
+            <div class="kv-row">
+              <dt><label for="rated">Rated</label></dt>
+              <dd><input id="rated" class="field" type="text" maxlength="20" placeholder="N/A" /></dd>
+            </div>
+            <div class="kv-row">
+              <dt><label for="runtime">Runtime (min)</label></dt>
+              <dd><input id="runtime" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+            </div>
+            <div class="kv-row">
+              <dt><label for="poster">Poster URL</label></dt>
+              <dd><input id="poster" class="field" type="url" placeholder="N/A" /></dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+
+      <section class="detail-section">
+        <h2><label for="plot">Plot</label></h2>
+        <textarea id="plot" class="field" rows="5" maxlength="10000" placeholder="N/A"></textarea>
+      </section>
+
+      <section class="detail-section">
+        <h2><label for="genres">Genres</label></h2>
+        <input id="genres" class="field" type="text" placeholder="N/A" />
+      </section>
+
+      <section class="detail-section">
+        <h2><label for="cast">Cast</label></h2>
+        <input id="cast" class="field" type="text" placeholder="N/A" />
+      </section>
+
+      <section class="detail-section">
+        <h2><label for="directors">Directors</label></h2>
+        <input id="directors" class="field" type="text" placeholder="N/A" />
+      </section>
+
+      <section class="detail-section">
+        <h2><label for="writers">Writers</label></h2>
+        <input id="writers" class="field" type="text" placeholder="N/A" />
+      </section>
+
+      <section class="detail-section">
+        <h2><label for="languages">Languages</label></h2>
+        <input id="languages" class="field" type="text" placeholder="N/A" />
+      </section>
+
+      <section class="detail-section">
+        <h2><label for="countries">Countries</label></h2>
+        <input id="countries" class="field" type="text" placeholder="N/A" />
+      </section>
+
+      <section class="detail-section">
+        <h2>Awards</h2>
+        <dl class="kv">
+          <div class="kv-row">
+            <dt><label for="awardsWins">Wins</label></dt>
+            <dd><input id="awardsWins" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+          </div>
+          <div class="kv-row">
+            <dt><label for="awardsNominations">Nominations</label></dt>
+            <dd><input id="awardsNominations" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+          </div>
+          <div class="kv-row">
+            <dt><label for="awardsText">Text</label></dt>
+            <dd><input id="awardsText" class="field" type="text" maxlength="300" placeholder="N/A" /></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="detail-section">
+        <h2>IMDb</h2>
+        <dl class="kv">
+          <div class="kv-row">
+            <dt><label for="imdbRating">Rating</label></dt>
+            <dd><input id="imdbRating" class="field" type="number" step="0.1" min="0" max="10" placeholder="N/A" /></dd>
+          </div>
+          <div class="kv-row">
+            <dt><label for="imdbVotes">Votes</label></dt>
+            <dd><input id="imdbVotes" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+          </div>
+        </dl>
+      </section>
+
+      <section class="detail-section">
+        <h2>Rotten Tomatoes</h2>
+        <dl class="kv">
+          <div class="kv-row">
+            <dt>Viewer</dt>
+            <dd>
+              <dl class="kv">
+                <div class="kv-row">
+                  <dt><label for="viewerRating">Rating</label></dt>
+                  <dd><input id="viewerRating" class="field" type="number" step="0.1" min="0" placeholder="N/A" /></dd>
+                </div>
+                <div class="kv-row">
+                  <dt><label for="viewerReviews">Num Reviews</label></dt>
+                  <dd><input id="viewerReviews" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+                </div>
+                <div class="kv-row">
+                  <dt><label for="viewerMeter">Meter</label></dt>
+                  <dd><input id="viewerMeter" class="field" type="number" step="1" min="0" max="100" placeholder="N/A" /></dd>
+                </div>
+              </dl>
+            </dd>
+          </div>
+          <div class="kv-row">
+            <dt>Critic</dt>
+            <dd>
+              <dl class="kv">
+                <div class="kv-row">
+                  <dt><label for="criticRating">Rating</label></dt>
+                  <dd><input id="criticRating" class="field" type="number" step="0.1" min="0" placeholder="N/A" /></dd>
+                </div>
+                <div class="kv-row">
+                  <dt><label for="criticReviews">Num Reviews</label></dt>
+                  <dd><input id="criticReviews" class="field" type="number" step="1" min="0" placeholder="N/A" /></dd>
+                </div>
+                <div class="kv-row">
+                  <dt><label for="criticMeter">Meter</label></dt>
+                  <dd><input id="criticMeter" class="field" type="number" step="1" min="0" max="100" placeholder="N/A" /></dd>
+                </div>
+              </dl>
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <div class="form-actions">
+        <button id="submitBtn" class="toggle-btn" type="submit">Add Movie</button>
+        <span id="formMessage" class="form-message" role="status"></span>
+      </div>
+    </form>
+  </main>
+
+  <script src="favorites.js"></script>
+  <script src="movieAdder.js"></script>
+</body>
+</html>

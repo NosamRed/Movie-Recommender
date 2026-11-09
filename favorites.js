@@ -110,3 +110,31 @@ function addFavoriteStar(card, movieId, onToggle) {
   card.appendChild(btn);
   return btn;
 }
+
+/* ---------------- Shared card helpers ---------------- */
+// Titles, years and poster URLs can now come from users (Added Movies), so
+// anything pasted into an innerHTML template must go through these first.
+
+// Escapes text for safe use inside innerHTML templates and attribute values.
+function safeText(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+const POSTER_PLACEHOLDER = "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="450" viewBox="0 0 300 450">' +
+  '<rect width="300" height="450" fill="#222"/>' +
+  '<text x="150" y="225" fill="#888" font-family="Arial, sans-serif" font-size="20" text-anchor="middle">No poster</text>' +
+  '</svg>'
+);
+
+// Safe value for an <img src="...">: the poster if it's a real http(s) URL
+// (escaped), otherwise a placeholder image — covers "N/A" and missing posters.
+function posterSrc(poster) {
+  const url = typeof poster === "string" ? poster.trim() : "";
+  return /^https?:\/\//i.test(url) ? safeText(url) : POSTER_PLACEHOLDER;
+}

@@ -1,0 +1,12 @@
+/* Title on the left, "Add a Movie" button on the right */
+.page-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.page-header-row .toggle-btn {
+  margin-bottom: 0;
+}

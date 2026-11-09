@@ -26,7 +26,9 @@ const UserSchema = new mongoose.Schema({
 const MovieSchema = new mongoose.Schema({
   title: String,
   year: Number,
-  genres: [String]
+  genres: [String],
+  addedBy: String, // username of the user who added this movie (user-added movies only)
+  addedAt: Date
 }, { timestamps: true });
 
 // Internal state
@@ -219,4 +221,139 @@ export async function getRecommendedIds(username) {
   const userDoc = await User.findOne({ username }).lean().exec();
   if (!userDoc) return null;
   return normalizeFavorites(userDoc.recommendedMovies);
+}
+
+/* ---------------- User-added movies ---------------- */
+
+const NA = "N/A";
+
+function validationError(message) {
+  return Object.assign(new Error(message), { code: "VALIDATION" });
+}
+
+// Each helper turns a raw form value into what gets stored. A blank or
+// unusable value becomes "N/A" so every field always has something to show.
+function asText(value, max = 300) {
+  const s = typeof value === "string" ? value.trim() : "";
+  return s ? s.slice(0, max) : NA;
+}
+
+function asNumber(value) {
+  if (value === null || value === undefined || String(value).trim() === "") return NA;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : NA;
+}
+
+function asInteger(value) {
+  const n = asNumber(value);
+  return n === NA ? NA : Math.trunc(n);
+}
+
+function asList(value) {
+  const items = String(value ?? "")
+    .split(",")
+    .map(s => s.trim().slice(0, 200))
+    .filter(Boolean)
+    .slice(0, 50);
+  return items.length ? items : [NA];
+}
+
+function asDate(value) {
+  const s = typeof value === "string" ? value.trim() : "";
+  if (!s) return NA;
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? NA : d;
+}
+
+// Only real web URLs are kept — anything else is treated as "no poster".
+function asPosterUrl(value) {
+  const s = typeof value === "string" ? value.trim().slice(0, 2000) : "";
+  return /^https?:\/\//i.test(s) ? s : NA;
+}
+
+function asObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+}
+
+// Saves a movie the user filled in by hand. Returns { _id, title }, or null if
+// the user doesn't exist. Throws a VALIDATION error if the title is missing.
+export async function addUserMovie(username, input) {
+  const { User, Movie } = getModels();
+
+  if (typeof username !== "string" || !username) return null;
+  const userExists = await User.exists({ username });
+  if (!userExists) return null;
+
+  const data = asObject(input);
+  const title = typeof data.title === "string" ? data.title.trim().slice(0, 300) : "";
+  if (!title) throw validationError("Title is required");
+
+  const awards = asObject(data.awards);
+  const imdb = asObject(data.imdb);
+  const tomatoes = asObject(data.tomatoes);
+  const viewer = asObject(tomatoes.viewer);
+  const critic = asObject(tomatoes.critic);
+  const plot = asText(data.plot, 10000);
+
+  const doc = {
+    title,
+    year: asInteger(data.year),
+    released: asDate(data.released),
+    rated: asText(data.rated, 20),
+    runtime: asInteger(data.runtime),
+    poster: asPosterUrl(data.poster),
+    plot,
+    fullplot: plot,
+    genres: asList(data.genres),
+    cast: asList(data.cast),
+    directors: asList(data.directors),
+    writers: asList(data.writers),
+    languages: asList(data.languages),
+    countries: asList(data.countries),
+    awards: {
+      wins: asInteger(awards.wins),
+      nominations: asInteger(awards.nominations),
+      text: asText(awards.text)
+    },
+    imdb: {
+      rating: asNumber(imdb.rating),
+      votes: asInteger(imdb.votes)
+    },
+    tomatoes: {
+      viewer: {
+        rating: asNumber(viewer.rating),
+        numReviews: asInteger(viewer.numReviews),
+        meter: asInteger(viewer.meter)
+      },
+      critic: {
+        rating: asNumber(critic.rating),
+        numReviews: asInteger(critic.numReviews),
+        meter: asInteger(critic.meter)
+      }
+    },
+    type: "movie",
+    num_mflix_comments: 0,
+    addedBy: username,
+    addedAt: new Date()
+  };
+
+  // Inserted with the raw driver on purpose: blank fields are stored as "N/A",
+  // which the Mongoose schema's Number fields (e.g. year) would reject.
+  const result = await Movie.collection.insertOne(doc);
+  return { _id: String(result.insertedId), title };
+}
+
+// Compact list (id/title/year/poster) of the movies a user added, newest first.
+// Returns null if the user doesn't exist.
+export async function getAddedMovies(username) {
+  const { User, Movie } = getModels();
+
+  if (typeof username !== "string" || !username) return null;
+  const userExists = await User.exists({ username });
+  if (!userExists) return null;
+
+  return Movie.find({ addedBy: username }, { title: 1, year: 1, poster: 1 })
+    .sort({ addedAt: -1 })
+    .lean()
+    .exec();
 }

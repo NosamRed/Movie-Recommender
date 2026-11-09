@@ -119,11 +119,11 @@ function renderMovieCard(movie, onFavoriteToggle) {
   card.className = "movie-card";
   card.innerHTML = `
     <div class="movie-poster">
-      <img src="${movie.poster}" alt="${movie.title} poster">
+      <img src="${posterSrc(movie.poster)}" alt="${safeText(movie.title)} poster">
     </div>
     <div class="movie-meta">
-      <h3 class="movie-title">${movie.title}</h3>
-      <div class="movie-sub">${movie.year}</div>
+      <h3 class="movie-title">${safeText(movie.title)}</h3>
+      <div class="movie-sub">${safeText(movie.year)}</div>
     </div>
   `;
 

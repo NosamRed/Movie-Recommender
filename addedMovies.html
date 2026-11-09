@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Added Movies</title>
+  <link rel="stylesheet" href="mrStyle.css" />
+  <link rel="stylesheet" href="allMovies.css" />
+  <link rel="stylesheet" href="addedMovies.css" />
+</head>
+<body>
+
+  <header class="site-header">
+    <nav class="navbar">
+      <div class="nav-left">
+        <a class="brand" href="index.HTML">Movie Recommender</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="container">
+    <div class="page-header-row">
+      <h1>Added Movies</h1>
+      <button id="addMovieBtn" class="toggle-btn" type="button">+ Add a Movie</button>
+    </div>
+
+    <div id="movie-grid" class="movie-grid"></div>
+    <p id="emptyMessage" class="muted" style="display:none;margin-top:20px;"></p>
+  </main>
+
+  <script src="favorites.js"></script>
+  <script src="addedMovies.js"></script>
+</body>
+</html>
